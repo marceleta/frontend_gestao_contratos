@@ -1,121 +1,31 @@
 import React, { useState } from 'react';
-import styled from 'styled-components';
-import authService from '../services/authService';
-import logo from '../assets/images/logo.png';
-import { Link, Routes, Route, useNavigate } from 'react-router-dom';
+import {
+  AppBar,
+  Toolbar,
+  IconButton,
+  Typography,
+  Box,
+  Drawer,
+  List,
+  ListItem,
+  ListItemText,
+  Avatar,
+  CssBaseline,
+  Divider,
+  Container,
+} from '@mui/material';
+import MenuIcon from '@mui/icons-material/Menu';
+import LogoutIcon from '@mui/icons-material/Logout';
+import { Link, Routes, Route } from 'react-router-dom';
 import TenantsPage from './TenantsPage';
+import logo from '../assets/images/logo.png';
+import authService from '../services/authService';
 
-const PageContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-`;
-
-const Header = styled.header`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px 20px;
-  background-color: #007BFF;
-  color: white;
-`;
-
-const Logo = styled.img`
-  height: 50px;
-`;
-
-const SystemName = styled.h1`
-  margin-left: 10px;
-  font-size: 24px;
-`;
-
-const UserContainer = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 15px;
-`;
-
-const UserName = styled.div`
-  font-size: 18px;
-`;
-
-const LogoutLink = styled.a`
-  font-size: 16px;
-  color: white;
-  cursor: pointer;
-  &:hover {
-    text-decoration: none;
-    opacity: 0.8;
-  }
-`;
-
-const Content = styled.div`
-  display: flex;
-  flex: 1;
-`;
-
-const Sidebar = styled.div`
-  width: ${({ $isOpen }) => ($isOpen ? '120px' : '0')};
-  background-color: #f4f4f4;
-  padding: ${({ $isOpen }) => ($isOpen ? '20px' : '0')};
-  overflow: hidden;
-  transition: width 0.3s, padding 0.3s;
-`;
-
-const DropdownMenu = styled.ul`
-  list-style-type: none;
-  padding: 0;
-  li {
-    padding: 10px;
-    cursor: pointer;
-    &:hover {
-      background-color: #ddd;
-    }
-  }
-`;
-
-const MainContent = styled.div`
-  flex: 1;
-  padding: 20px;
-  background-color: #f0f2f5;
-  overflow-y: auto;
-`;
-
-const BurgerMenuWrapper = styled.div`
-  position: absolute;
-  top: 100px;
-  left: 10px;
-  z-index: 1000;
-`;
-
-const BurgerMenu = styled.div`
-  width: 30px;
-  height: 20px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  cursor: pointer;
-  span {
-    display: block;
-    height: 3px;
-    background-color: #007BFF;
-    border-radius: 2px;
-    transition: transform 0.3s, opacity 0.3s;
-  }
-  span:nth-child(1) {
-    transform: ${({ isOpen }) => (isOpen ? 'rotate(45deg) translateY(12px)' : 'none')};
-  }
-  span:nth-child(2) {
-    opacity: ${({ isOpen }) => (isOpen ? '0' : '1')};
-  }
-  span:nth-child(3) {
-    transform: ${({ isOpen }) => (isOpen ? 'rotate(-45deg) translateY(-12px)' : 'none')};
-  }
-`;
+const drawerWidth = 240;
 
 const HomePage = ({ userName }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const navigate = useNavigate();
+
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
@@ -123,45 +33,90 @@ const HomePage = ({ userName }) => {
 
   const handleLogout = () => {
     authService.logout();
-    navigate('/login');
   };
 
   return (
-    <PageContainer>
-      <Header>
-        <div style={{ display: 'flex', alignItems: 'center' }}>
-          <Logo src={logo} alt="PropertyHub Logo" />
-          <SystemName>PropertyHub</SystemName>
-        </div>
-        <UserContainer>
-          <UserName>{userName}</UserName>
-          <LogoutLink onClick={handleLogout}>(Logout)</LogoutLink>
-        </UserContainer>
-      </Header>
-      <BurgerMenuWrapper>
-        <BurgerMenu isOpen={isSidebarOpen} onClick={toggleSidebar} aria-label="Menu Hamburguer">
-          <span></span>
-          <span></span>
-          <span></span>
-        </BurgerMenu>
-      </BurgerMenuWrapper>
-      <Content>
-        <Sidebar $isOpen={isSidebarOpen}>
-          <DropdownMenu>
-            <li>Dashboard</li>
-            <li>Propriedades</li>
-            <li><Link to="tenants">Locatários</Link></li>
-            <li>Configurações</li>
-          </DropdownMenu>
-        </Sidebar>
-        <MainContent>
+    <Box sx={{ display: 'flex' }}>
+      <CssBaseline />
+      <AppBar
+        position="fixed"
+        sx={{
+          zIndex: (theme) => theme.zIndex.drawer + 1,
+          backgroundColor: 'primary.main',
+        }}
+      >
+        <Toolbar>
+          <IconButton
+            color="inherit"
+            aria-label="open drawer"
+            edge="start"
+            onClick={toggleSidebar}
+            sx={{ marginRight: 2 }}
+          >
+            <MenuIcon />
+          </IconButton>
+          <Avatar src={logo} alt="PropertyHub Logo" sx={{ width: 50, height: 50 }} />
+          <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1, marginLeft: 2 }}>
+            PropertyHub
+          </Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <Typography variant="body1" sx={{ marginRight: 2 }}>
+              {userName}
+            </Typography>
+            <IconButton color="inherit" onClick={handleLogout}>
+              <LogoutIcon />
+            </IconButton>
+          </Box>
+        </Toolbar>
+      </AppBar>
+      <Drawer
+        variant="persistent"
+        anchor="left"
+        open={isSidebarOpen}
+        sx={{
+          width: drawerWidth,
+          flexShrink: 0,
+          '& .MuiDrawer-paper': {
+            width: drawerWidth,
+            boxSizing: 'border-box',
+          },
+        }}
+      >
+        <Toolbar />
+        <Divider />
+        <List>
+          <ListItem button component={Link} to="/dashboard">
+            <ListItemText primary="Dashboard" />
+          </ListItem>
+          <ListItem button component={Link} to="/properties">
+            <ListItemText primary="Propriedades" />
+          </ListItem>
+          <ListItem button component={Link} to="tenants">
+            <ListItemText primary="Locatários" />
+          </ListItem>
+          <ListItem button component={Link} to="/settings">
+            <ListItemText primary="Configurações" />
+          </ListItem>
+        </List>
+      </Drawer>
+      <Box
+        component="main"
+        sx={{
+          flexGrow: 1,
+          p: 3,
+          backgroundColor: 'background.default',
+          minHeight: '100vh',
+        }}
+      >
+        <Toolbar />
+        <Container>
           <Routes>
             <Route path="tenants/*" element={<TenantsPage />} />
             {/* Outras rotas podem ser adicionadas aqui */}
           </Routes>
-        </MainContent>
-      </Content>
-    </PageContainer>
+        </Container>
+      </Box>
+    </Box>
   );
 };
 

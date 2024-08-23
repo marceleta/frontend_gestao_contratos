@@ -2,10 +2,11 @@ import React from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import Login from './pages/Login';
 import HomePage from './pages/HomePage';
+import authService from './services/authService';
 
 const App = () => {
   const isAuthenticated = !!localStorage.getItem('token'); // Simples verificação de autenticação
-  const userName = 'Marcelo'; // O nome do usuário pode vir do backend após o login
+  const userName = authService.getUsername()
 
   return (
     <Router>

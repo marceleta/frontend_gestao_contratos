@@ -1,44 +1,17 @@
 import React, { useState } from 'react';
-import styled from 'styled-components';
-import axios from 'axios';
-import InputField from '../components/InputField';
-import Button from '../components/Button';
+import logo from '../assets/images/logo.png'
+import {
+  Container,
+  Box,
+  Avatar,
+  Typography,
+  TextField,
+  Button,
+  Alert,
+  Paper,
+} from '@mui/material';
+
 import authService from '../services/authService';
-import logo from '../assets/images/logo.png';
-
-const PageContainer = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh; /* Faz com que o contêiner ocupe toda a altura da viewport */
-  background-color: #f4f4f4; /* Cor de fundo opcional */
-`;
-
-const LoginContainer = styled.div`
-  max-width: 300px;
-  width: 100%; /* Para garantir que não ultrapasse o tamanho máximo */
-  padding: 20px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  background-color: white; /* Cor de fundo do contêiner de login */
-  text-align: center;
-`;
-
-const LoginTitle = styled.h2`
-  margin-bottom: 20px;
-  color: #333;
-`;
-
-const Logo = styled.img`
-  width: 90px;
-  margin-bottom: 20px;
-`;
-
-const ErrorMessage = styled.p`
-  color: red;
-  margin-top: 10px;
-`;
 
 const Login = () => {
   const [username, setUsername] = useState('');
@@ -54,7 +27,7 @@ const Login = () => {
     }
 
     try {
-      await authService.login(username, password); // Use o serviço de autenticação para o login
+      await authService.login(username, password); // Usa o serviço de autenticação para login
       window.location.href = '/home';
     } catch (error) {
       setError('Falha no login. Verifique suas credenciais e tente novamente.');
@@ -62,35 +35,67 @@ const Login = () => {
   };
 
   return (
-    <PageContainer>
-      <LoginContainer>
-        <Logo src={logo} alt="PropertyHub Logo" />
-        <LoginTitle>Login</LoginTitle>
-        <form onSubmit={handleSubmit}>
-          <InputField
-            id="username"
-            label="Usuário"
-            type="text"
-            placeholder="Digite seu usuário"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-          />
-          <InputField
-            id="password"
-            label="Senha"
-            type="password"
-            placeholder="Digite sua senha"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-          <Button variant="salvar" type="submit">
-            Entrar
-          </Button>
-          {error && <ErrorMessage>{error}</ErrorMessage>}
-        </form>
-      </LoginContainer>
-    </PageContainer>
+    <Container component="main" maxWidth="xs">
+      <Paper elevation={6} sx={{ padding: 4, mt: 8 }}>
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+          }}
+        >
+          <Avatar sx={{ m: 1, width: 100, height: 100 }}>
+            <img src={logo} alt="PropertyHub Logo" style={{ width: 120, marginBottom: 20 }} />
+          </Avatar>
+          <Typography component="h1" variant="h5" color="primary">
+            Login
+          </Typography>
+          <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              id="username"
+              label="Usuário"
+              name="username"
+              autoComplete="username"
+              autoFocus
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              color="primary"
+            />
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              name="password"
+              label="Senha"
+              type="password"
+              id="password"
+              autoComplete="current-password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              color="primary"
+            />
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              sx={{ mt: 3, mb: 2 }}
+            >
+              Entrar
+            </Button>
+            {error && (
+              <Alert severity="error" sx={{ mt: 2 }}>
+                {error}
+              </Alert>
+            )}
+          </Box>
+        </Box>
+      </Paper>
+    </Container>
   );
 };
 
 export default Login;
+
