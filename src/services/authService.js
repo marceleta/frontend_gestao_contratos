@@ -1,6 +1,7 @@
 import axios from 'axios';
 
 const API_URL = 'http://localhost:8000/api/token/';
+const PROFILE_URL = 'http://localhost:8000/api/v1/perfil/me/';
 
 const login = async (username, password) => {
   try {
@@ -9,12 +10,19 @@ const login = async (username, password) => {
       password,
     });
 
-    // Salvando o token JWT no localStorage
+
+    // Salvar o token JWT no localStorage
     localStorage.setItem('token', response.data.access);
     localStorage.setItem('username', username);
 
-    // Configurando o token no cabeçalho de autorização
+    // Configurar o cabeçalho de autorização para requisições subsequentes
     axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.access}`;
+
+    // Buscar informações do perfil do usuário autenticado
+    const userProfile = await getUserProfile();
+    localStorage.setItem('userId', userProfile.id);
+    localStorage.setItem('email', userProfile.email);
+    localStorage.setItem('permissions', JSON.stringify(userProfile.permissoes));
 
     return response.data;
   } catch (error) {
@@ -24,10 +32,18 @@ const login = async (username, password) => {
 };
 
 const logout = () => {
-  localStorage.removeItem('token'); // Remove o token do localStorage
-  localStorage.removeItem('username'); // Remove o nome de usuário
-  delete axios.defaults.headers.common['Authorization']; // Remove o cabeçalho de autorização
-  window.location.href = '/login'; // Redireciona para a página de login
+  // Remover todos os dados do localStorage relacionados ao usuário
+  localStorage.removeItem('token');
+  localStorage.removeItem('username');
+  localStorage.removeItem('userId');
+  localStorage.removeItem('email');
+  localStorage.removeItem('permissions');
+
+  // Remover o cabeçalho de autorização
+  delete axios.defaults.headers.common['Authorization'];
+
+  // Redirecionar para a página de login
+  window.location.href = '/login';
 };
 
 const getToken = () => {
@@ -38,7 +54,30 @@ const getUsername = () => {
   return localStorage.getItem('username');
 };
 
-// Configura o interceptor para adicionar o token a todas as requisições
+const getUserId = () => {
+  return localStorage.getItem('userId');
+};
+
+const getEmail = () => {
+  return localStorage.getItem('email');
+};
+
+const getPermissions = () => {
+  const permissions = localStorage.getItem('permissions');
+  return permissions ? JSON.parse(permissions) : [];
+};
+
+const getUserProfile = async () => {
+  try {
+    const response = await axios.get(PROFILE_URL);
+    return response.data;
+  } catch (error) {
+    console.error('Erro ao buscar perfil do usuário:', error);
+    throw error;
+  }
+};
+
+// Configurar o interceptor para adicionar o token a todas as requisições
 axios.interceptors.request.use(
   (config) => {
     const token = getToken();
@@ -52,10 +91,14 @@ axios.interceptors.request.use(
   }
 );
 
-// eslint-disable-next-line
+// Exportar todas as funções
 export default {
   login,
   logout,
   getToken,
   getUsername,
+  getUserId,
+  getEmail,
+  getPermissions,
+  getUserProfile,
 };

@@ -12,12 +12,12 @@ import {
   Avatar,
   CssBaseline,
   Divider,
-  Container,
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import LogoutIcon from '@mui/icons-material/Logout';
 import { Link, Routes, Route } from 'react-router-dom';
 import TenantsPage from './TenantsPage';
+import KanbanPage from './KanbanPage';
 import logo from '../assets/images/logo.png';
 import authService from '../services/authService';
 
@@ -25,7 +25,6 @@ const drawerWidth = 240;
 
 const HomePage = ({ userName }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
@@ -36,8 +35,9 @@ const HomePage = ({ userName }) => {
   };
 
   return (
-    <Box sx={{ display: 'flex' }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
       <CssBaseline />
+      {/* AppBar permanece no topo */}
       <AppBar
         position="fixed"
         sx={{
@@ -69,6 +69,11 @@ const HomePage = ({ userName }) => {
           </Box>
         </Toolbar>
       </AppBar>
+
+      {/* Espaço reservado para o AppBar */}
+      <Toolbar />
+
+      {/* Drawer posicionado abaixo da AppBar */}
       <Drawer
         variant="persistent"
         anchor="left"
@@ -79,14 +84,17 @@ const HomePage = ({ userName }) => {
           '& .MuiDrawer-paper': {
             width: drawerWidth,
             boxSizing: 'border-box',
+            marginTop: '64px', // Deslocar o Drawer para baixo do AppBar (altura padrão do AppBar)
           },
         }}
       >
-        <Toolbar />
         <Divider />
         <List>
           <ListItem button component={Link} to="/dashboard">
             <ListItemText primary="Dashboard" />
+          </ListItem>
+          <ListItem button component={Link} to="kanban">
+            <ListItemText primary="Kanban" />
           </ListItem>
           <ListItem button component={Link} to="/properties">
             <ListItemText primary="Propriedades" />
@@ -99,26 +107,36 @@ const HomePage = ({ userName }) => {
           </ListItem>
         </List>
       </Drawer>
+
+      {/* Conteúdo principal */}
       <Box
         component="main"
         sx={{
           flexGrow: 1,
           p: 3,
-          backgroundColor: 'background.default',
-          minHeight: '100vh',
+          transition: (theme) =>
+            theme.transitions.create('margin', {
+              easing: theme.transitions.easing.sharp,
+              duration: theme.transitions.duration.enteringScreen,
+            }),
+          marginLeft: isSidebarOpen ? `${drawerWidth}px` : '15px',
+          marginTop: '20px', // Margem no topo, ajustável conforme necessário
+          marginRight: isSidebarOpen ? '0' : '30px',
+          width: isSidebarOpen ? `calc(100% - ${drawerWidth}px)` : '98%', // Ajustar largura do conteúdo
+          textAlign: isSidebarOpen ? 'left' : 'center', // Centralizar quando o menu está retraído
         }}
       >
-        <Toolbar />
-        <Container>
-          <Routes>
-            <Route path="tenants/*" element={<TenantsPage />} />
-            {/* Outras rotas podem ser adicionadas aqui */}
-          </Routes>
-        </Container>
+        <Routes>
+          <Route path="tenants/*" element={<TenantsPage />} />
+          <Route path="kanban/*" element={<KanbanPage />} />
+          {/* Outras rotas podem ser adicionadas aqui */}
+        </Routes>
       </Box>
     </Box>
   );
 };
 
 export default HomePage;
+
+
 
