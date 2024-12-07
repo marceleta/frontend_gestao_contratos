@@ -13,28 +13,39 @@ import { DndContext, closestCenter } from '@dnd-kit/core';
 import { SortableContext, horizontalListSortingStrategy, arrayMove } from '@dnd-kit/sortable';
 
 const KanbanBoard = ({ columns, setColumns }) => {
+  // Estado para controlar a abertura do diálogo para adicionar uma nova coluna
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  // Estado para armazenar o nome da nova coluna
   const [newColumnName, setNewColumnName] = useState('');
+  // Estado para armazenar o prazo de alerta da nova coluna
   const [alertDeadline, setAlertDeadline] = useState('');
+  // Snackbar para exibir notificações
   const { enqueueSnackbar } = useSnackbar();
+  // Estado para controlar a exibição do indicador de carregamento
   const [isLoading, setIsLoading] = useState(false);
+  // Referência ao quadro do Kanban para controlar o scroll
   const boardRef = useRef(null);
 
-  // Estado para adicionar um novo card
+  // Estado para controlar a abertura do diálogo para adicionar um novo card
   const [isAddCardDialogOpen, setIsAddCardDialogOpen] = useState(false);
+  // Estado para armazenar os dados do novo card
   const [newCardData, setNewCardData] = useState({ lead_nome: '', contatos: [{ tipo: 'whatsapp', valor: '' }], descricao: '' });
+  // Estado para armazenar o ID da coluna alvo onde o card será adicionado
   const [targetColumnId, setTargetColumnId] = useState(null);
 
+  // Função para abrir o diálogo para adicionar um novo card em uma coluna específica
   const handleAddCardDialogOpen = (columnId) => {
     setTargetColumnId(columnId);
     setIsAddCardDialogOpen(true);
   };
 
+  // Função para fechar o diálogo para adicionar um novo card
   const handleAddCardDialogClose = () => {
     setIsAddCardDialogOpen(false);
     setNewCardData({ lead_nome: '', contatos: [{ tipo: 'whatsapp', valor: '' }], descricao: '' });
   };
 
+  // Função para adicionar um campo de contato adicional no card
   const handleAddContactField = () => {
     setNewCardData((prev) => ({
       ...prev,
@@ -42,6 +53,7 @@ const KanbanBoard = ({ columns, setColumns }) => {
     }));
   };
 
+  // Função para atualizar os campos de contato no card
   const handleContactChange = (index, key, value) => {
     setNewCardData((prev) => {
       const updatedContatos = [...prev.contatos];
@@ -50,9 +62,10 @@ const KanbanBoard = ({ columns, setColumns }) => {
     });
   };
 
+  // Função para adicionar um novo card à coluna selecionada
   const handleAddCard = () => {
     const newCard = {
-      id: `card-${Date.now()}`,
+      id: `card-${Date.now()}`, // Gera um ID único para o card
       ...newCardData,
     };
 
@@ -71,20 +84,24 @@ const KanbanBoard = ({ columns, setColumns }) => {
     handleAddCardDialogClose();
   };
 
+  // Função para abrir o diálogo de adição de coluna
   const handleOpenDialog = () => {
     setIsDialogOpen(true);
   };
 
+  // Função para fechar o diálogo de adição de coluna
   const handleCloseDialog = () => {
     setIsDialogOpen(false);
     setNewColumnName('');
     setAlertDeadline('');
   };
 
+  // Função para mover um card entre colunas (ainda não implementada)
   const handleCardMove = (sourceColumnId, targetColumnId, cardId) => {
     console.log(`Movendo card ${cardId} de ${sourceColumnId} para ${targetColumnId}`);
   };
 
+  // Função para excluir uma coluna
   const handleColumnDelete = async (columnId) => {
     try {
       setIsLoading(true);
@@ -99,6 +116,7 @@ const KanbanBoard = ({ columns, setColumns }) => {
     }
   };
 
+  // Função para validar os dados da nova coluna antes de adicioná-la
   const validateNewColumn = () => {
     if (!newColumnName.trim()) {
       enqueueSnackbar('O nome da coluna não pode estar vazio!', { variant: 'warning' });
@@ -111,6 +129,7 @@ const KanbanBoard = ({ columns, setColumns }) => {
     return true;
   };
 
+  // Função para salvar a nova coluna no backend
   const saveColumnToBackend = async () => {
     const dataColumn = {
       'kanban_id': localStorage.getItem('kanban_id'),
@@ -129,6 +148,7 @@ const KanbanBoard = ({ columns, setColumns }) => {
     }
   };
 
+  // Função para adicionar a nova coluna ao estado local
   const addColumnToState = (coluna) => {
     const newColumn = {
       id: coluna.id,
@@ -139,11 +159,12 @@ const KanbanBoard = ({ columns, setColumns }) => {
 
     setColumns((prevColumns) => {
       const updatedColumns = [...prevColumns];
-      updatedColumns.splice(1, 0, newColumn);
+      updatedColumns.splice(1, 0, newColumn); // Adiciona a nova coluna na posição desejada
       return updatedColumns;
     });
   };
 
+  // Função para adicionar uma nova coluna
   const handleAddColumn = async () => {
     if (!validateNewColumn()) return;
 
@@ -159,6 +180,7 @@ const KanbanBoard = ({ columns, setColumns }) => {
     setIsLoading(false);
   };
 
+  // Função para atualizar os dados de uma coluna existente
   const handleUpdateColumn = async (columnId, updatedData) => {
     try {
       setIsLoading(true);
@@ -179,6 +201,7 @@ const KanbanBoard = ({ columns, setColumns }) => {
     }
   };
 
+  // Função para tratar o evento de arrastar e soltar colunas
   const handleDragEnd = (event) => {
     const { active, over } = event;
 
@@ -195,12 +218,14 @@ const KanbanBoard = ({ columns, setColumns }) => {
     }
   };
 
+  // Função para rolar o quadro Kanban para a esquerda
   const scrollLeft = () => {
     if (boardRef.current) {
       boardRef.current.scrollTo({ left: 0, behavior: 'smooth' });
     }
   };
 
+  // Função para rolar o quadro Kanban para a direita
   const scrollRight = () => {
     if (boardRef.current) {
       boardRef.current.scrollTo({ left: boardRef.current.scrollWidth, behavior: 'smooth' });
@@ -210,10 +235,12 @@ const KanbanBoard = ({ columns, setColumns }) => {
   return (
     <Box sx={{ p: 2, height: '555px', width: '100%', position: 'relative' }}>
       <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+        {/* Botão para adicionar uma nova coluna */}
         <AddButton onClick={handleOpenDialog} isLoading={isLoading}>
           {isLoading ? <CircularProgress size={24} color="inherit" /> : 'Adicionar Coluna'}
         </AddButton>
 
+        {/* Modal para adicionar uma nova coluna */}
         <AddColumnModal
           isOpen={isDialogOpen}
           onClose={handleCloseDialog}
@@ -225,6 +252,7 @@ const KanbanBoard = ({ columns, setColumns }) => {
         />
       </Box>
 
+      {/* Botões de rolagem esquerda/direita para o quadro Kanban */}
       <IconButton
         sx={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', zIndex: 1 }}
         onClick={scrollLeft}
@@ -239,6 +267,7 @@ const KanbanBoard = ({ columns, setColumns }) => {
         <ArrowForwardIosIcon />
       </IconButton>
 
+      {/* Contexto de arrastar e soltar para organizar colunas */}
       <DndContext onDragEnd={handleDragEnd} collisionDetection={closestCenter}>
         <SortableContext items={columns.map((col) => col.id)} strategy={horizontalListSortingStrategy}>
           <Box
@@ -264,6 +293,7 @@ const KanbanBoard = ({ columns, setColumns }) => {
               },
             }}
           >
+            {/* Renderizando cada coluna do Kanban */}
             {columns.map((column) => (
               <KanbanColumn
                 key={column.id}
@@ -278,7 +308,7 @@ const KanbanBoard = ({ columns, setColumns }) => {
         </SortableContext>
       </DndContext>
 
-      {/* Dialog para adicionar novo card */}
+      {/* Diálogo para adicionar um novo card */}
       <Dialog open={isAddCardDialogOpen} onClose={handleAddCardDialogClose}>
         <DialogTitle>Adicionar Novo Card</DialogTitle>
         <DialogContent>
@@ -340,6 +370,7 @@ const KanbanBoard = ({ columns, setColumns }) => {
 };
 
 export default KanbanBoard;
+
 
 
 

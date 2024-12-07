@@ -15,6 +15,7 @@ import {
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import LogoutIcon from '@mui/icons-material/Logout';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import { Link, Routes, Route } from 'react-router-dom';
 import TenantsPage from './TenantsPage';
 import KanbanPage from './KanbanPage';
@@ -23,7 +24,7 @@ import authService from '../services/authService';
 
 const drawerWidth = 240;
 
-const HomePage = ({ userName }) => {
+const HomePage = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const toggleSidebar = () => {
@@ -35,7 +36,7 @@ const HomePage = ({ userName }) => {
   };
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh', justifyContent: 'flex-start', alignItems: 'flex-start' }}>
       <CssBaseline />
       {/* AppBar permanece no topo */}
       <AppBar
@@ -43,35 +44,47 @@ const HomePage = ({ userName }) => {
         sx={{
           zIndex: (theme) => theme.zIndex.drawer + 1,
           backgroundColor: 'primary.main',
+          height: '30px', // Altura reduzida do AppBar
         }}
       >
-        <Toolbar>
+        <Toolbar
+
+          sx={{
+            px: 1,
+            height: '30px',
+            display: 'flex', // Certifica que os elementos são flexíveis
+            alignItems: 'center', // Alinha os itens verticalmente no centro
+            justifyContent: 'space-between', // Distribui os itens uniformemente
+          }}
+        >
           <IconButton
             color="inherit"
             aria-label="open drawer"
             edge="start"
             onClick={toggleSidebar}
-            sx={{ marginRight: 2 }}
+            sx={{ marginRight: 1 }}
           >
             <MenuIcon />
           </IconButton>
-          <Avatar src={logo} alt="PropertyHub Logo" sx={{ width: 50, height: 50 }} />
-          <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1, marginLeft: 2 }}>
+          <Avatar src={logo} alt="PropertyHub Logo" sx={{ width: 28, height: 28 }} />
+          <Typography
+            variant="subtitle1"
+            noWrap
+            component="div"
+            sx={{ flexGrow: 1, marginLeft: 1 }}
+          >
             PropertyHub
           </Typography>
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <Typography variant="body1" sx={{ marginRight: 2 }}>
-              {userName}
-            </Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <IconButton color="inherit" sx={{ fontSize: 20 }}>
+              <AccountCircleIcon fontSize="inherit" />
+            </IconButton>
             <IconButton color="inherit" onClick={handleLogout}>
               <LogoutIcon />
             </IconButton>
           </Box>
         </Toolbar>
       </AppBar>
-
-      {/* Espaço reservado para o AppBar */}
-      <Toolbar />
 
       {/* Drawer posicionado abaixo da AppBar */}
       <Drawer
@@ -84,7 +97,7 @@ const HomePage = ({ userName }) => {
           '& .MuiDrawer-paper': {
             width: drawerWidth,
             boxSizing: 'border-box',
-            marginTop: '64px', // Deslocar o Drawer para baixo do AppBar (altura padrão do AppBar)
+            marginTop: '30px', // Deslocar o Drawer para baixo do AppBar ajustado
           },
         }}
       >
@@ -119,11 +132,11 @@ const HomePage = ({ userName }) => {
               easing: theme.transitions.easing.sharp,
               duration: theme.transitions.duration.enteringScreen,
             }),
-          marginLeft: isSidebarOpen ? `${drawerWidth}px` : '15px',
-          marginTop: '20px', // Margem no topo, ajustável conforme necessário
+          marginLeft: isSidebarOpen ? `${drawerWidth}px` : '0px',
+          marginTop: '30px',
           marginRight: isSidebarOpen ? '0' : '30px',
-          width: isSidebarOpen ? `calc(100% - ${drawerWidth}px)` : '98%', // Ajustar largura do conteúdo
-          textAlign: isSidebarOpen ? 'left' : 'center', // Centralizar quando o menu está retraído
+          width: isSidebarOpen ? `calc(100% - ${drawerWidth}px)` : '98%',
+          textAlign: isSidebarOpen ? 'left' : 'center',
         }}
       >
         <Routes>
@@ -131,12 +144,17 @@ const HomePage = ({ userName }) => {
           <Route path="kanban/*" element={<KanbanPage />} />
           {/* Outras rotas podem ser adicionadas aqui */}
         </Routes>
+
+        {/* Ajustes no cabeçalho */}
       </Box>
     </Box>
   );
 };
 
 export default HomePage;
+
+
+
 
 
 
