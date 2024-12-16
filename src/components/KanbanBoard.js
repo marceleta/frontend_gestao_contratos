@@ -233,10 +233,10 @@ const KanbanBoard = ({ columns, setColumns }) => {
   };
 
   return (
-    <Box sx={{ p: 2, height: '555px', width: '100%', position: 'relative' }}>
-      <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+    <Box sx={{ height: '100%', width: '100%', display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
         {/* Botão para adicionar uma nova coluna */}
-        <AddButton onClick={handleOpenDialog} isLoading={isLoading}>
+        <AddButton onClick={handleOpenDialog} isLoading={isLoading} size="small">
           {isLoading ? <CircularProgress size={24} color="inherit" /> : 'Adicionar Coluna'}
         </AddButton>
 
@@ -274,19 +274,18 @@ const KanbanBoard = ({ columns, setColumns }) => {
             ref={boardRef}
             sx={{
               display: 'flex',
-              gap: 3,
+              gap: '1rem',
               overflowX: 'auto',
               overflowY: 'hidden',
-              p: 0,
-              paddingBottom: 2,
+              height: '100%',
               whiteSpace: 'nowrap',
-              width: '100%',
+              paddingBottom: '1rem',
               '&::-webkit-scrollbar': {
-                height: 8,
+                height: '0.5rem',
               },
               '&::-webkit-scrollbar-thumb': {
                 backgroundColor: '#888',
-                borderRadius: 4,
+                borderRadius: '0.25rem',
               },
               '&::-webkit-scrollbar-thumb:hover': {
                 backgroundColor: '#555',

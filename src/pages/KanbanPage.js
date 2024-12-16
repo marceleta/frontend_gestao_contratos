@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Box, CircularProgress, Typography, Grid } from '@mui/material';
+import { Box, CircularProgress, Typography } from '@mui/material';
 import KanbanBoard from '../components/KanbanBoard'; // Criar este componente
 import kanbanService from '../services/kanbanService'; // Criar serviço para consumir API
 
@@ -35,28 +35,32 @@ const KanbanPage = () => {
   return (
     <Box
       sx={{
-        p: 3,
-        maxWidth: 'none',
+        p: 1,
+        mt: 1,
         width: '100%', // Define a largura máxima do conteúdo
+        height: '100%',
+        overflow: 'hidden', // Evita barras de rolagem desnecessárias
         margin: '0 auto', // Centraliza o conteúdo na tela
-        boxShadow: 1, // Adiciona uma sombra para destacar o conteúdo
+        boxShadow: 10, // Adiciona uma sombra para destacar o conteúdo
         backgroundColor: '#f0f0f0', // Define um fundo branco para o contêiner principal
         borderRadius: 2, // Adiciona bordas arredondadas para um visual mais suave
+        display: 'flex',
+        flexDirection: 'column',
       }}
     >
-      <Typography variant="h4" gutterBottom sx={{ mb: 2 }}>
+      <Typography variant="h6" gutterBottom sx={{ mb: 2, textAlign: { xs: 'center', sm: 'left' } }}>
         Quadro Kanban
       </Typography>
       <Box
         sx={{
-          overflowX: 'auto',
-          width: '100%',
-          pb: 2, // Padding inferior para evitar que o conteúdo encoste na borda
+          flexGrow: 1,
+          overflow: 'hidden', // Evita overflow do KanbanBoard
+          pb: 1, // Padding inferior para evitar que o conteúdo encoste na borda
         }}
       >
-        <Grid container spacing={1} sx={{ width: '100%' }}>
+        <Box sx={{ flexGrow: 1, flexDirection: 'column', display: 'flex', height: '100%', p: 1 }}>
           <KanbanBoard columns={columns} setColumns={setColumns} />
-        </Grid>
+        </Box>
       </Box>
     </Box>
   );
