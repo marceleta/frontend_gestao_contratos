@@ -2,13 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 
-const TenantDetail = () => {
+const ClientesDetail = () => {
   const { id } = useParams();
   const [tenant, setTenant] = useState(null);
 
   useEffect(() => {
     const fetchTenant = async () => {
-      const response = await axios.get(`/api/tenants/${id}/`);
+      const response = await axios.get(`/api/clientes/${id}/`);
       setTenant(response.data);
     };
 
@@ -29,4 +29,4 @@ const TenantDetail = () => {
   );
 };
 
-export default TenantDetail;
+export default ClientesDetail;

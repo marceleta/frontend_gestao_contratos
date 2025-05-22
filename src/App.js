@@ -6,7 +6,7 @@ import HomePage from './pages/HomePage';
 import authService from './services/authService';
 
 const App = () => {
-  const isAuthenticated = !!localStorage.getItem('token'); // Simples verificação de autenticação
+  const isAuthenticated = !!sessionStorage.getItem('token'); // Simples verificação de autenticação
   const userName = authService.getUsername();
 
   return (

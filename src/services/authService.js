@@ -1,98 +1,150 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:8000/api/token/';
+const LOGIN_API_URL = 'http://localhost:8000/api/token/';
 const PROFILE_URL = 'http://localhost:8000/api/v1/perfil/me/';
 
 const login = async (username, password) => {
   try {
-    const response = await axios.post(API_URL, {
+    const response = await axios.post(LOGIN_API_URL, {
       username,
       password,
     });
 
 
     // Salvar o token JWT no localStorage
-    localStorage.setItem('token', response.data.access);
-    localStorage.setItem('username', username);
+    sessionStorage.setItem('token', response.data.access);
+    sessionStorage.setItem('username', username);
 
-    // Configurar o cabeçalho de autorização para requisições subsequentes
-    axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.access}`;
 
     // Buscar informações do perfil do usuário autenticado
     const userProfile = await getUserProfile();
-    localStorage.setItem('userId', userProfile.id);
-    localStorage.setItem('email', userProfile.email);
-    localStorage.setItem('permissions', JSON.stringify(userProfile.permissoes));
+    sessionStorage.setItem('userId', userProfile.id);
+    sessionStorage.setItem('email', userProfile.email);
+    sessionStorage.setItem('permissions', JSON.stringify(userProfile.permissoes));
 
     return response.data;
   } catch (error) {
     console.error('Erro no login:', error);
-    throw error;
+    return Promise.reject(error);
   }
 };
 
+/**
+ * Faz logout do usuário, removendo dados e redirecionando para login.
+ */
 const logout = () => {
-  // Remover todos os dados do localStorage relacionados ao usuário
-  localStorage.removeItem('token');
-  localStorage.removeItem('username');
-  localStorage.removeItem('userId');
-  localStorage.removeItem('email');
-  localStorage.removeItem('permissions');
+  try {
+    sessionStorage.removeItem('token');
+    sessionStorage.removeItem('username');
+    sessionStorage.removeItem('userId');
+    sessionStorage.removeItem('email');
+    sessionStorage.removeItem('permissions');
 
-  // Remover o cabeçalho de autorização
-  delete axios.defaults.headers.common['Authorization'];
+    delete axios.defaults.headers.common['Authorization']; // Remove cabeçalho (se necessário)
 
-  // Redirecionar para a página de login
-  window.location.href = '/login';
+    window.location.href = '/login'; // Redireciona para login
+  } catch (error) {
+    console.error('Erro ao fazer logout:', error);
+  }
 };
 
 const getToken = () => {
-  return localStorage.getItem('token');
+  return sessionStorage.getItem('token');
 };
 
 const getUsername = () => {
-  return localStorage.getItem('username');
+  return sessionStorage.getItem('username');
 };
 
 const getUserId = () => {
-  return localStorage.getItem('userId');
+  return sessionStorage.getItem('userId');
 };
 
 const getEmail = () => {
-  return localStorage.getItem('email');
+  return sessionStorage.getItem('email');
 };
 
 const getPermissions = () => {
-  const permissions = localStorage.getItem('permissions');
+  const permissions = sessionStorage.getItem('permissions');
   return permissions ? JSON.parse(permissions) : [];
 };
 
+/**
+ * Obtém os detalhes do perfil do usuário autenticado.
+ * 
+ * O interceptor de requisição já adiciona automaticamente o token JWT no cabeçalho,
+ * então não há necessidade de passar o token manualmente nesta requisição.
+ * 
+ * @returns {Promise<Object>} Dados do perfil do usuário autenticado.
+ * @throws {Error} Se houver erro ao buscar o perfil.
+ */
 const getUserProfile = async () => {
   try {
+    // Faz uma requisição GET para obter os dados do perfil do usuário
     const response = await axios.get(PROFILE_URL);
+
+    // Retorna os dados do perfil
     return response.data;
   } catch (error) {
+    // Exibe um erro no console caso a requisição falhe
     console.error('Erro ao buscar perfil do usuário:', error);
-    throw error;
+
+    // Rejeita a Promise para permitir o tratamento do erro no chamador da função
+    return Promise.reject(error);
   }
 };
 
-// Configurar o interceptor para adicionar o token a todas as requisições
+
+// Interceptor de requisição: adiciona automaticamente o token JWT em todas as requisições
 axios.interceptors.request.use(
   (config) => {
-    const token = getToken();
-    if (token) {
-      config.headers['Authorization'] = `Bearer ${token}`;
+    // Verifica se a requisição é para o endpoint de login
+    if (config.url.includes('/api/token/')) {
+      return config; // Permite a requisição de login sem adicionar o token
     }
+
+    // Obtém o token armazenado
+    const token = getToken();
+
+    // Se não houver token, rejeita a requisição e lança um erro
+    if (!token) {
+      return Promise.reject(new Error('Token não encontrado.'));
+    }
+
+    // Adiciona o token no cabeçalho da requisição
+    config.headers['Authorization'] = `Bearer ${token}`;
+
+    // Retorna a configuração da requisição modificada
     return config;
   },
   (error) => {
+    // Rejeita qualquer erro que ocorra na configuração da requisição
     return Promise.reject(error);
   }
 );
 
-// Exportar todas as funções
-export default {
+// Interceptor de resposta: captura erros globais e realiza ações específicas
+axios.interceptors.response.use(
+  (response) => {
+    // Se a resposta for bem-sucedida, retorna normalmente
+    return response;
+  },
+  (error) => {
+    // Verifica se a resposta contém erro 401 (token inválido ou expirado)
+    if (error.response && error.response.status === 401) {
+      console.warn('Token expirado! Fazendo logout...');
+
+      // Executa logout automático para evitar acesso não autorizado
+      logout();
+    }
+
+    // Rejeita o erro para que ele possa ser tratado nos `.catch()` das requisições
+    return Promise.reject(error);
+  }
+);
+
+
+const authService = {
   login,
   logout,
   getToken,
@@ -102,3 +154,6 @@ export default {
   getPermissions,
   getUserProfile,
 };
+
+export default authService;
+

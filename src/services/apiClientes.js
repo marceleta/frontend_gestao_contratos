@@ -35,10 +35,10 @@ api.interceptors.response.use(
 
 // Funções para chamadas à API
 
-export const getTenants = () => api.get('locatario');
-export const getTenantById = (id) => api.get(`locatario/${id}`);
-export const createTenant = (data) => api.post('locatario', data);
-export const updateTenant = (id, data) => api.put(`locatario/${id}`, data);
-export const deleteTenant = (id) => api.delete(`locatario/${id}`);
+export const getClientes = () => api.get('locatario');
+export const getClienteById = (id) => api.get(`locatario/${id}`);
+export const createCliente = (data) => api.post('locatario', data);
+export const updateCliente = (id, data) => api.put(`locatario/${id}`, data);
+export const deleteCliente = (id) => api.delete(`locatario/${id}`);
 
 export default api;

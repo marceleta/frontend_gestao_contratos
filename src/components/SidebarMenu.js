@@ -55,10 +55,9 @@ const SidebarMenu = ({ isMenuOpen, handleMouseEnter, handleMouseLeave }) => {
         <List>
           {[
             { text: 'Dashboard', to: '/dashboard' },
-            { text: 'Kanban', to: 'kanban' },
-            { text: 'Propriedades', to: '/properties' },
-            { text: 'Locatários', to: 'tenants' },
-            { text: 'Configurações', to: '/settings' },
+            { text: 'Propriedades', to: '/propriedades' },
+            { text: 'Clientes', to: 'clientes' },
+            { text: 'Configurações', to: '/config' },
           ].map((item) => (
             <ListItem
               button
